@@ -1,0 +1,21 @@
+{
+    "name": "415Project",
+    "version": "1.0.0",
+    "description": "CKs Express Mongo Test on Render",
+    "main": "endpoints.js",
+    "repository": "https://github.com/nateryder/MongoRender",
+    "author": "nate",
+    "license": "MIT",
+    "private": false,
+    "scripts": {
+      "start": "node endpoints.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2",
+      "mongodb": "^5.1.0"
+    },
+    "engines": {
+      "node": ">=14"
+    }
+  }
+  
