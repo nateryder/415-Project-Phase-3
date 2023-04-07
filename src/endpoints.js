@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose= require('mongoose');
 const Ticket = require('./models/ticket')
+const fs = require('fs');
 
 
 const app =  express();
@@ -52,14 +53,19 @@ app.get('/rest/list/:id', async(req,res) => {
 
 
  app.post('/rest/ticket/', async (req,res) => {
-  console.log(req.body);
-  const ticket = new Ticket(req.body);
-  try{
-  	await ticket.save();
-  res.status(201).json({ticket});
-  }catch(e){
-	res.status(400).json({error:e.message});
-  }
+	try {
+		const ticket = new Ticket(req.body);
+		await ticket.save();
+		const tickets = await Ticket.find();
+		const data = JSON.stringify({ tickets: tickets });
+		fs.writeFile('tickets.json' , '\n' + data + '\n',  (err) => {
+		  if (err) throw err;
+		  console.log('Tickets written to file');
+		});
+		res.status(201).send(ticket);
+	  } catch (e) {
+		res.status(500).json({ error: e.message });
+	  }
   
 });
 
