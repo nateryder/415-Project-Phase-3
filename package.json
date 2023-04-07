@@ -1,14 +1,14 @@
 {
     "name": "415Project",
     "version": "1.0.0",
-    "description": "CKs Express Mongo Test on Render",
+    "description": "415--Project",
     "main": "src/endpoints.js",
     "repository": "https://github.com/nateryder/415-Project",
     "author": "nate",
     "license": "MIT",
     "private": false,
     "scripts": {
-        "start": "npx nodemon "
+        "start": "src/endpoints.js "
     },
     "dependencies": {
         "dotenv": "^16.0.3",
