@@ -1,11 +1,22 @@
 const express = require('express');
-const mongoose= require('mongoose')
- const app =  express();
- mongoose.set('strictQuery',false);
+const mongoose= require('mongoose');
 
- app.use(express.json());
- app.use(express.urlencoded({extended: true}));
- const PORT = 3000;
+
+const app =  express();
+mongoose.set('strictQuery',false);
+
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+if(process.env.NODE_ENV !== 'production'){
+  require('dotenv').config();
+}
+
+const PORT =process.env.PORT ||3000;
+
+const CONNECTION = process.env.CONNECTION;
+
+const conn = process.env.conn
 
  const json = {
   "id": 1,
@@ -96,7 +107,7 @@ const mongoose= require('mongoose')
 
  const start = async() =>{
   try {
-    await mongoose.connect('mongodb+srv://nate:u4zJago40axAK8TJ@cluster0.0duifq0.mongodb.net/?retryWrites=true&w=majority');
+    await mongoose.connect(CONNECTION);
     
    app.listen(PORT,() =>{
      console.log('App listening on port ' + PORT)
