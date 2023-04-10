@@ -47,11 +47,11 @@ const ticketSchema = new mongoose.Schema({
     required : true
   },
   follower_id:{
-    type : Number,
+    type : [Number],
     required : true
   },
   tags:{
-    type : String,
+    type : [String],
     required : true
   }
 });
