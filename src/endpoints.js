@@ -78,7 +78,7 @@ app.put('/rest/list/:id', async(req,res) => {
 	try {
 		const id = req.params.id;
 		const result = await Ticket.findOneAndUpdate({ id: id }, req.body);
-		res.json({ updatedCount: result.modifiedCount});
+		res.json({ updatedCount: result ? 1 : 0 });
 	} catch (e) {
 		res.status(500).json({ error: e.message });
 	}
