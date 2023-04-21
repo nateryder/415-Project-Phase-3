@@ -84,7 +84,15 @@ app.put('/rest/list/:id', async(req,res) => {
 	}
 });
 
-
+app.delete('/rest/list/:id', async(req,res) => {
+	try {
+		const id = req.params.id;
+		const result = await Ticket.deleteOne({ id: id }, req.body);
+		res.json({ deleteCount: result ? 1 : 0 });
+	} catch (e) {
+		res.status(500).json({ error: e.message });
+	}
+});
 
  app.post('/rest/ticket/', async (req,res) => {
 	try {
