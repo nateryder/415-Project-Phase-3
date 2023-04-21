@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose= require('mongoose');
 const Ticket = require('./models/ticket')
+const bodyParser = require('body-parser');
+
 const fs = require('fs');
 
 
@@ -9,6 +11,7 @@ mongoose.set('strictQuery',false);
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 if(process.env.NODE_ENV !== 'production'){
   require('dotenv').config();
@@ -25,7 +28,27 @@ const CONNECTION = process.env.CONNECTION;
 
 
 app.get('/', (req,res) => {
-	res.send("Getting Your Ticket!");
+	res.sendFile(__dirname + "/post.html");
+});
+
+app.post('/', (req,res) => {
+	let newTicket = new Ticket({
+		id:req.body.id,
+		created_at:req.body.created_at,
+		updated_at:req.body.updated_at,
+		type:req.body.type,
+		subject:req.body.subject,
+		description:req.body.description,
+		priority:req.body.priority,
+		status:req.body.status,
+		recipient:req.body.recipient,
+		submitter:req.body.submitter,
+		assigned_id:req.body.assigned_id,
+		follower_id:req.body.follower_id,
+		tags:req.body.tags
+	})
+	newTicket.save();
+	res.redirect('/')
 });
 
 app.get('/rest/list/', async (req,res) => {
@@ -50,6 +73,17 @@ app.get('/rest/list/:id', async(req,res) => {
 	  }
   
 });
+
+app.put('/rest/list/:id', async(req,res) => {
+	try {
+		const id = req.params.id;
+		const result = await Ticket.findOneAndUpdate({ id: id }, req.body);
+		res.json({ updatedCount: result.modifiedCount});
+	} catch (e) {
+		res.status(500).json({ error: e.message });
+	}
+});
+
 
 
  app.post('/rest/ticket/', async (req,res) => {
