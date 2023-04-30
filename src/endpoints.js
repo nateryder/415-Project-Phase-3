@@ -111,6 +111,30 @@ app.delete('/rest/list/:id', async(req,res) => {
   
 });
 
+const convert = require('xml-js');
+
+class TicketAdapter {
+  static async getTicketAsXml(id) {
+    const ticket = await Ticket.findOne({ id: id });
+    if (!ticket) {
+      throw new Error('Ticket not found');
+    }
+    const ticketJson = ticket.toJSON();
+    const xml = convert.js2xml(ticketJson, { compact: true, ignoreComment: true, spaces: 4 });
+    return xml;
+  }
+}
+
+app.get('/rest/ticket/:id/xml', async (req, res) => {
+	try {
+	  const xml = await TicketAdapter.getTicketAsXml(req.params.id);
+	  res.set('Content-Type', 'application/xml');
+	  res.send(xml);
+	} catch (e) {
+	  res.status(404).send({ error: e.message });
+	}
+  });
+
 
 const start = async() =>{
   try {

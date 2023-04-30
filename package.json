@@ -20,7 +20,8 @@
     "mongodb": "^5.1.0",
     "mongoose": "^6.10.5",
     "mongose": "^0.0.2-security",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "xml-js": "^1.6.11"
   },
   "engines": {
     "node": ">=14"
