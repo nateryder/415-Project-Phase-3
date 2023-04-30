@@ -4,7 +4,7 @@ const Ticket = require('./models/ticket')
 const bodyParser = require('body-parser');
 
 const fs = require('fs');
-
+const convert = require('xml-js');
 
 const app =  express();
 mongoose.set('strictQuery',false);
@@ -111,29 +111,69 @@ app.delete('/rest/list/:id', async(req,res) => {
   
 });
 
-const convert = require('xml-js');
+
+const { parseStringPromise } = require('xml2js');
 
 class TicketAdapter {
-  static async getTicketAsXml(id) {
-    const ticket = await Ticket.findOne({ id: id });
-    if (!ticket) {
-      throw new Error('Ticket not found');
-    }
-    const ticketJson = ticket.toJSON();
-    const xml = convert.js2xml(ticketJson, { compact: true, ignoreComment: true, spaces: 4 });
-    return xml;
+static async getTicketAsXml(id) {
+	const ticket = await Ticket.findOne({ id: id });
+	if (!ticket) {
+	  throw new Error('Ticket not found');
+	}
+	const ticketJson = ticket.toJSON();
+	const xml = convert.js2xml(ticketJson, { compact: true, ignoreComment: true, spaces: 4 }).trim(); // remove leading/trailing whitespace
+	return xml;
+	 }
+
+  static async updateTicketFromXml(id, xml) {
+    const ticketJson = await parseStringPromise(xml, { explicitArray: false });
+    const updatedTicket = JSON.parse(JSON.stringify(ticketJson));
+    return TicketAdapter.updateTicket(id, updatedTicket);
   }
+
+  static async updateTicket(id, updatedTicket) {
+	const response = await fetch(`/rest/ticket/${id}`, {
+	  method: 'PUT',
+	  headers: {
+		'Content-Type': 'application/json'
+	  },
+	  body: JSON.stringify(updatedTicket)
+	});
+	if (!response.ok) {
+	  const errorJson = await response.json();
+	  throw new Error(errorJson.error);
+	}
+	const updatedTicketJson = await response.json();
+	const xmlResponse = convert.js2xml(updatedTicketJson, { compact: true, ignoreComment: true, spaces: 4 }).trim(); // remove leading/trailing whitespace
+	console.log(xmlResponse)
+	return xmlResponse;
+  }
+  
 }
 
 app.get('/rest/ticket/:id/xml', async (req, res) => {
-	try {
-	  const xml = await TicketAdapter.getTicketAsXml(req.params.id);
-	  res.set('Content-Type', 'application/xml');
-	  res.send(xml);
-	} catch (e) {
-	  res.status(404).send({ error: e.message });
-	}
-  });
+  try {
+    const xml = await TicketAdapter.getTicketAsXml(req.params.id);
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (e) {
+    res.status(404).send({ error: e.message });
+  }
+});
+
+app.put('/rest/ticket/:id/xml', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const xml = req.body;
+    const updatedXml = await TicketAdapter.updateTicketFromXml(id, xml, req);
+    res.set('Content-Type', 'application/xml');
+    res.send(xmlResponse);
+	
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 
 
 const start = async() =>{
